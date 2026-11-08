@@ -388,15 +388,29 @@
             document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Sedang mengambil data...</td></tr>';
             
             try {
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
+                // Tambahkan redirect manual untuk mencegah bug CORS Google
+                const response = await fetch(SCRIPT_URL, {
+                    redirect: "follow",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8",
+                    }
+                });
+                
+                const textData = await response.text();
+                
+                // Cek apakah response berupa HTML (biasanya halaman error Google)
+                if (textData.includes('<!DOCTYPE html>')) {
+                    throw new Error("Server mengembalikan halaman HTML. Pastikan hak akses Deploy adalah 'Anyone'.");
+                }
+                
+                const data = JSON.parse(textData);
                 transactions = data;
                 renderApp();
                 showToast('Data berhasil dimuat!', 'success');
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching data detail:", error);
                 showToast('Gagal memuat data dari server', 'error');
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-500">Gagal memuat data. Periksa koneksi atau URL Google Script Anda.</td></tr>';
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-500 font-medium">Gagal memuat data. <br><span class="text-sm text-gray-500 font-normal">Pastikan hak akses Google Script adalah 'Anyone' dan coba buka di tab Incognito/Samaran.</span></td></tr>`;
             }
         }
 
