@@ -314,7 +314,7 @@
     <script>
         // --- State Management ---
         // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-        const SCRIPT_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvXCzrPh75J-ReiHCcxc6iNUGEbCgf8D_2Ip_o61s0kqlX_Xi6w8YxkOU-F4dMhh2S/exec'; 
         
         let transactions = []; // Data awal kosong, akan diisi dari Google Sheet
         let isProcessing = false; // Mencegah double klik
@@ -379,7 +379,7 @@
 
         // Fungsi Load Data dari Google Sheet
         async function loadDataFromSheet() {
-            if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbzvXCzrPh75J-ReiHCcxc6iNUGEbCgf8D_2Ip_o61s0kqlX_Xi6w8YxkOU-F4dMhh2S/exec') {
+            if (SCRIPT_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DISINI') {
                 showToast('URL Google Sheet belum dikonfigurasi!', 'error');
                 return;
             }
