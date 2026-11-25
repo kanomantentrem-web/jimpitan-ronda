@@ -213,7 +213,8 @@
                 <div class="text-center">
                     <h1 class="text-2xl font-bold uppercase tracking-wide text-gray-900">Laporan Keuangan Kas Jimpitan Ronda</h1>
                     <p class="text-gray-700 font-semibold mt-0.5">Kanoman RT 01/RW 34, Banjeng</p>
-                    <p class="text-gray-500 text-xs mt-1" id="printDate"></p>
+                    <p class="text-cyan-800 text-sm font-semibold mt-1" id="printPeriodInfo">Periode Riwayat: Semua Transaksi</p>
+                    <p class="text-gray-500 text-xs mt-0.5" id="printDate"></p>
                 </div>
             </div>
         </div>
@@ -253,7 +254,7 @@
                 </div>
                 <!-- Khusus Print Saldo -->
                 <div class="print-only bg-white border border-gray-300 rounded-xl p-4 text-center">
-                    <p class="text-sm font-bold text-gray-500 uppercase">Saldo Kas Jimpitan Ronda</p>
+                    <p class="text-sm font-bold text-gray-500 uppercase">Saldo Kas Keseluruhan</p>
                     <h3 class="text-2xl font-bold text-cyan-700" id="printCardSaldo">Rp 0</h3>
                 </div>
 
@@ -413,13 +414,55 @@
 
             </div>
 
-            <!-- Tabel Riwayat Transaksi -->
+            <!-- Tabel Riwayat Transaksi (Dengan Filter & Pengelompokan Per Bulan) -->
             <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-md border border-white/80 overflow-hidden mb-8">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50/90 to-cyan-50/40 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-gray-800">
-                        <i class="fa-solid fa-clock-rotate-left mr-2 text-cyan-600"></i> Riwayat Transaksi Kas Jimpitan Ronda
-                    </h2>
-                    <span class="text-xs bg-cyan-100/80 text-cyan-800 px-3 py-1 rounded-full font-medium no-print">Terbaru di atas</span>
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50/90 to-cyan-50/40 flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">
+                            <i class="fa-solid fa-clock-rotate-left mr-2 text-cyan-600"></i> Riwayat Transaksi Kas Jimpitan Ronda
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-0.5" id="historyPeriodSubtitle">Menampilkan semua periode (dikelompokkan per bulan)</p>
+                    </div>
+
+                    <!-- Filter Riwayat Per Bulan & Tahun -->
+                    <div class="flex flex-wrap items-center gap-2 no-print">
+                        <select id="historyMonthFilter" onchange="renderTable()" class="text-xs sm:text-sm border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white text-gray-700 font-medium focus:ring-cyan-500 focus:border-cyan-500 shadow-sm" aria-label="Filter Bulan Riwayat">
+                            <option value="all">Semua Bulan</option>
+                            <option value="0">Januari</option>
+                            <option value="1">Februari</option>
+                            <option value="2">Maret</option>
+                            <option value="3">April</option>
+                            <option value="4">Mei</option>
+                            <option value="5">Juni</option>
+                            <option value="6">Juli</option>
+                            <option value="7">Agustus</option>
+                            <option value="8">September</option>
+                            <option value="9">Oktober</option>
+                            <option value="10">November</option>
+                            <option value="11">Desember</option>
+                        </select>
+
+                        <select id="historyYearFilter" onchange="renderTable()" class="text-xs sm:text-sm border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white text-gray-700 font-medium focus:ring-cyan-500 focus:border-cyan-500 shadow-sm" aria-label="Filter Tahun Riwayat">
+                            <option value="all">Semua Tahun</option>
+                        </select>
+
+                        <button type="button" id="btnResetHistoryFilter" onclick="resetHistoryFilter()" class="hidden inline-flex items-center px-2.5 py-1.5 rounded-xl text-xs font-medium bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200 transition-colors" title="Tampilkan Semua Transaksi">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bar Ringkasan Periode Terpilih -->
+                <div id="historySummaryBar" class="hidden px-6 py-3 bg-slate-50/70 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+                    <div class="flex items-center gap-2 text-gray-600 font-medium">
+                        <i class="fa-regular fa-calendar-check text-cyan-600"></i>
+                        <span id="historySummaryCount">0 Transaksi</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <span class="text-gray-600">Masuk: <strong class="text-emerald-600" id="historySummaryIn">Rp 0</strong></span>
+                        <span class="text-gray-600">Keluar: <strong class="text-red-600" id="historySummaryOut">Rp 0</strong></span>
+                        <span class="text-gray-600">Selisih: <strong class="text-cyan-700" id="historySummaryNet">Rp 0</strong></span>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -436,11 +479,12 @@
                         <tbody id="tableBody" class="bg-white divide-y divide-gray-100">
                             <!-- Data akan di-render di sini oleh JavaScript -->
                         </tbody>
-                        <tfoot class="bg-gray-50 font-bold print-only">
+                        <tfoot id="tableFooter" class="hidden bg-slate-50 font-bold border-t-2 border-gray-200">
                             <tr>
-                                <td colspan="2" class="px-6 py-4 text-right text-sm text-gray-700">TOTAL KESELURUHAN:</td>
-                                <td class="px-6 py-4 text-right text-sm text-emerald-600" id="printTotalPemasukan">Rp 0</td>
-                                <td class="px-6 py-4 text-right text-sm text-red-600" id="printTotalPengeluaran">Rp 0</td>
+                                <td colspan="2" class="px-6 py-4 text-right text-xs sm:text-sm text-gray-700 uppercase" id="tableFooterLabel">TOTAL PERIODE INI:</td>
+                                <td class="px-6 py-4 text-right text-sm text-emerald-600 whitespace-nowrap" id="printTotalPemasukan">Rp 0</td>
+                                <td class="px-6 py-4 text-right text-sm text-red-600 whitespace-nowrap" id="printTotalPengeluaran">Rp 0</td>
+                                <td id="footerAksiSpacer" class="hidden no-print"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -451,8 +495,8 @@
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-50 to-emerald-50 border border-cyan-100 text-cyan-600 mb-4 p-2.5 shadow-sm">
                         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjLeV-JoowVapEICTjgIZzUhVAy70wq52BIEhStfkT1VAPDD68dTh7I4fg5I0mi8OKEgkhaShrVBYQz14H1d1yFWtsaXxPFcFXMCPKfNpQfbCenmNXcPKr2JRtVCULWuDfRR_gMYyUnx341P94kLPQthhHTZQdq89SA21Bhrk0oqrTskacjw4AHPvGXS9xb/s1600/Kanoman%20RT%2001.png" alt="Belum ada transaksi" class="w-full h-full object-contain opacity-80" onerror="this.onerror=null; this.outerHTML='<i class=\'fa-solid fa-wallet text-2xl text-cyan-500\'></i>';">
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900">Belum ada transaksi</h3>
-                    <p class="mt-1 text-sm text-gray-500">Data pemasukan jimpitan ronda atau pengeluaran kas akan tampil di sini.</p>
+                    <h3 class="text-lg font-semibold text-gray-900" id="emptyStateTitle">Belum ada transaksi</h3>
+                    <p class="mt-1 text-sm text-gray-500" id="emptyStateDesc">Data pemasukan jimpitan ronda atau pengeluaran kas akan tampil di sini.</p>
                 </div>
             </div>
 
@@ -580,6 +624,7 @@
         function updateAdminUI() {
             const formSection = document.getElementById('formSection');
             const colAksiHeader = document.getElementById('colAksiHeader');
+            const footerAksiSpacer = document.getElementById('footerAksiSpacer');
             const btnOpenLogin = document.getElementById('btnOpenLogin');
             const btnLogout = document.getElementById('btnLogout');
             const modeBadge = document.getElementById('modeBadge');
@@ -587,6 +632,7 @@
             if (isAdmin) {
                 formSection.classList.remove('hidden');
                 colAksiHeader.classList.remove('hidden');
+                if (footerAksiSpacer) footerAksiSpacer.classList.remove('hidden');
                 btnOpenLogin.classList.add('hidden');
                 btnLogout.classList.remove('hidden');
 
@@ -595,6 +641,7 @@
             } else {
                 formSection.classList.add('hidden');
                 colAksiHeader.classList.add('hidden');
+                if (footerAksiSpacer) footerAksiSpacer.classList.add('hidden');
                 btnOpenLogin.classList.remove('hidden');
                 btnLogout.classList.add('hidden');
 
@@ -769,6 +816,8 @@
             const colSpan = isAdmin ? 5 : 4;
             const offlineBanner = document.getElementById('offlineBanner');
             document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('historySummaryBar').classList.add('hidden');
+            document.getElementById('tableFooter').classList.add('hidden');
             document.getElementById('tableBody').innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-8 text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2 text-cyan-600"></i> Sedang mengambil data laporan...</td></tr>`;
 
             try {
@@ -996,71 +1045,240 @@
             document.getElementById('totalTrxCount').textContent = `${transactions.length} Transaksi`;
 
             document.getElementById('printCardSaldo').textContent = formatRupiah(saldoAkhir);
-            document.getElementById('printTotalPemasukan').textContent = formatRupiah(totalPemasukan);
-            document.getElementById('printTotalPengeluaran').textContent = formatRupiah(totalPengeluaran);
 
+            populateHistoryYearFilter();
             renderTable();
             updateChart(totalPemasukan, totalPengeluaran);
             populateYearFilter();
             renderMonthlyCostChart();
         }
 
+        // Mengisi dropdown Tahun khusus filter Riwayat Transaksi
+        function populateHistoryYearFilter() {
+            const yearSelect = document.getElementById('historyYearFilter');
+            if (!yearSelect) return;
+
+            const previousVal = yearSelect.value || 'all';
+            const yearsSet = new Set();
+
+            transactions.forEach(trx => {
+                const dp = parseDateParts(trx.date);
+                if (dp) yearsSet.add(dp.year);
+            });
+
+            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+            yearSelect.innerHTML = '<option value="all">Semua Tahun</option>';
+            sortedYears.forEach(yr => {
+                const opt = document.createElement('option');
+                opt.value = String(yr);
+                opt.textContent = `Tahun ${yr}`;
+                yearSelect.appendChild(opt);
+            });
+
+            if (previousVal === 'all' || sortedYears.includes(Number(previousVal))) {
+                yearSelect.value = previousVal;
+            } else {
+                yearSelect.value = 'all';
+            }
+        }
+
+        function resetHistoryFilter() {
+            document.getElementById('historyMonthFilter').value = 'all';
+            document.getElementById('historyYearFilter').value = 'all';
+            renderTable();
+        }
+
+        function buildTransactionRow(trx) {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-cyan-50/40 transition-colors';
+
+            const dp = parseDateParts(trx.date);
+            const formattedDate = dp
+                ? `${String(dp.day).padStart(2, '0')}/${String(dp.month + 1).padStart(2, '0')}/${dp.year}`
+                : escapeHTML(trx.date);
+
+            let colPemasukan = '-';
+            let colPengeluaran = '-';
+            let classPemasukan = 'text-gray-400 text-center';
+            let classPengeluaran = 'text-gray-400 text-center';
+
+            if (trx.type === 'pemasukan') {
+                colPemasukan = formatRupiah(trx.amount);
+                classPemasukan = 'text-emerald-600 font-semibold text-right';
+            } else {
+                colPengeluaran = formatRupiah(trx.amount);
+                classPengeluaran = 'text-red-600 font-semibold text-right';
+            }
+
+            const aksiCell = isAdmin ? `
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium no-print">
+                    <button type="button" onclick="editTransaction(${trx.id})" class="text-cyan-600 hover:text-cyan-900 mx-1 p-1.5 bg-cyan-50 rounded-lg transition-colors" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button type="button" onclick="openDeleteModal(${trx.id})" class="text-red-600 hover:text-red-900 mx-1 p-1.5 bg-red-50 rounded-lg transition-colors" title="Hapus">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            ` : '';
+
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formattedDate}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 font-medium">${escapeHTML(trx.desc)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm ${classPemasukan}">${colPemasukan}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm ${classPengeluaran}">${colPengeluaran}</td>
+                ${aksiCell}
+            `;
+            return tr;
+        }
+
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
+            const emptyStateTitle = document.getElementById('emptyStateTitle');
+            const emptyStateDesc = document.getElementById('emptyStateDesc');
+            const summaryBar = document.getElementById('historySummaryBar');
+            const tableFooter = document.getElementById('tableFooter');
+            const btnReset = document.getElementById('btnResetHistoryFilter');
+            const subtitle = document.getElementById('historyPeriodSubtitle');
+            const printPeriodInfo = document.getElementById('printPeriodInfo');
+
+            const selectedMonth = document.getElementById('historyMonthFilter').value;
+            const selectedYear = document.getElementById('historyYearFilter').value;
+            const isFiltered = selectedMonth !== 'all' || selectedYear !== 'all';
+
+            btnReset.classList.toggle('hidden', !isFiltered);
+
+            // Buat label periode aktif
+            let periodLabel = 'Semua Transaksi';
+            if (selectedMonth !== 'all' && selectedYear !== 'all') {
+                periodLabel = `${monthLabelsFull[Number(selectedMonth)]} ${selectedYear}`;
+            } else if (selectedMonth !== 'all') {
+                periodLabel = `Bulan ${monthLabelsFull[Number(selectedMonth)]} (Semua Tahun)`;
+            } else if (selectedYear !== 'all') {
+                periodLabel = `Tahun ${selectedYear}`;
+            }
+
+            subtitle.textContent = isFiltered
+                ? `Periode: ${periodLabel}`
+                : 'Menampilkan semua periode (dikelompokkan per bulan)';
+            if (printPeriodInfo) {
+                printPeriodInfo.textContent = `Periode Riwayat: ${periodLabel}`;
+            }
+
+            // Filter transaksi sesuai bulan & tahun terpilih
+            const filteredTransactions = transactions.filter(trx => {
+                const dp = parseDateParts(trx.date);
+                if (!dp) return !isFiltered;
+                const matchMonth = selectedMonth === 'all' || dp.month === Number(selectedMonth);
+                const matchYear = selectedYear === 'all' || dp.year === Number(selectedYear);
+                return matchMonth && matchYear;
+            });
 
             tbody.innerHTML = '';
 
-            if (transactions.length === 0) {
+            if (filteredTransactions.length === 0) {
                 emptyState.classList.remove('hidden');
+                summaryBar.classList.add('hidden');
+                tableFooter.classList.add('hidden');
+
+                if (transactions.length === 0) {
+                    emptyStateTitle.textContent = 'Belum ada transaksi';
+                    emptyStateDesc.textContent = 'Data pemasukan jimpitan ronda atau pengeluaran kas akan tampil di sini.';
+                } else {
+                    emptyStateTitle.textContent = `Tidak ada transaksi pada ${periodLabel}`;
+                    emptyStateDesc.textContent = 'Silakan pilih bulan atau tahun lain, atau klik Reset untuk melihat semua riwayat.';
+                }
                 return;
             }
+
             emptyState.classList.add('hidden');
+            summaryBar.classList.remove('hidden');
+            tableFooter.classList.remove('hidden');
 
-            const sortedTransactions = [...transactions].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-            sortedTransactions.forEach(trx => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-cyan-50/40 transition-colors';
-
-                const dateObj = new Date(trx.date);
-                const formattedDate = isNaN(dateObj.getTime())
-                    ? escapeHTML(trx.date)
-                    : `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
-
-                let colPemasukan = '-';
-                let colPengeluaran = '-';
-                let classPemasukan = 'text-gray-400 text-center';
-                let classPengeluaran = 'text-gray-400 text-center';
-
-                if (trx.type === 'pemasukan') {
-                    colPemasukan = formatRupiah(trx.amount);
-                    classPemasukan = 'text-emerald-600 font-semibold text-right';
-                } else {
-                    colPengeluaran = formatRupiah(trx.amount);
-                    classPengeluaran = 'text-red-600 font-semibold text-right';
-                }
-
-                const aksiCell = isAdmin ? `
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium no-print">
-                        <button type="button" onclick="editTransaction(${trx.id})" class="text-cyan-600 hover:text-cyan-900 mx-1 p-1.5 bg-cyan-50 rounded-lg transition-colors" title="Edit">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button type="button" onclick="openDeleteModal(${trx.id})" class="text-red-600 hover:text-red-900 mx-1 p-1.5 bg-red-50 rounded-lg transition-colors" title="Hapus">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                ` : '';
-
-                tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formattedDate}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${escapeHTML(trx.desc)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm ${classPemasukan}">${colPemasukan}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm ${classPengeluaran}">${colPengeluaran}</td>
-                    ${aksiCell}
-                `;
-                tbody.appendChild(tr);
+            // Urutkan transaksi terbaru di atas
+            const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+                const dpA = parseDateParts(a.date);
+                const dpB = parseDateParts(b.date);
+                const valA = dpA ? (dpA.year * 10000 + (dpA.month + 1) * 100 + dpA.day) : 0;
+                const valB = dpB ? (dpB.year * 10000 + (dpB.month + 1) * 100 + dpB.day) : 0;
+                if (valB !== valA) return valB - valA;
+                return (b.timestamp || 0) - (a.timestamp || 0);
             });
+
+            // Hitung total periode yang sedang ditampilkan
+            let periodIn = 0;
+            let periodOut = 0;
+            sortedTransactions.forEach(trx => {
+                if (trx.type === 'pemasukan') periodIn += Number(trx.amount) || 0;
+                else if (trx.type === 'pengeluaran') periodOut += Number(trx.amount) || 0;
+            });
+            const periodNet = periodIn - periodOut;
+
+            document.getElementById('historySummaryCount').textContent = `${sortedTransactions.length} Transaksi (${periodLabel})`;
+            document.getElementById('historySummaryIn').textContent = formatRupiah(periodIn);
+            document.getElementById('historySummaryOut').textContent = formatRupiah(periodOut);
+            const netEl = document.getElementById('historySummaryNet');
+            netEl.textContent = formatRupiah(periodNet);
+            netEl.className = periodNet >= 0 ? 'text-cyan-700 font-bold' : 'text-red-600 font-bold';
+
+            document.getElementById('tableFooterLabel').textContent = isFiltered
+                ? `TOTAL (${periodLabel.toUpperCase()}):`
+                : 'TOTAL KESELURUHAN:';
+            document.getElementById('printTotalPemasukan').textContent = formatRupiah(periodIn);
+            document.getElementById('printTotalPengeluaran').textContent = formatRupiah(periodOut);
+
+            const colSpan = isAdmin ? 5 : 4;
+
+            // Jika filter "Semua Bulan", kelompokkan otomatis per bulan agar mudah dibaca
+            if (selectedMonth === 'all') {
+                const groups = [];
+                const groupMap = new Map();
+
+                sortedTransactions.forEach(trx => {
+                    const dp = parseDateParts(trx.date);
+                    const key = dp ? `${dp.year}-${String(dp.month).padStart(2, '0')}` : 'unknown';
+                    const label = dp ? `${monthLabelsFull[dp.month]} ${dp.year}` : 'Tanggal Lainnya';
+
+                    if (!groupMap.has(key)) {
+                        const groupObj = { key, label, items: [], totalIn: 0, totalOut: 0 };
+                        groupMap.set(key, groupObj);
+                        groups.push(groupObj);
+                    }
+                    const grp = groupMap.get(key);
+                    grp.items.push(trx);
+                    if (trx.type === 'pemasukan') grp.totalIn += Number(trx.amount) || 0;
+                    else if (trx.type === 'pengeluaran') grp.totalOut += Number(trx.amount) || 0;
+                });
+
+                groups.forEach(grp => {
+                    const headerRow = document.createElement('tr');
+                    headerRow.className = 'bg-cyan-50/70 border-t border-cyan-100';
+                    headerRow.innerHTML = `
+                        <td colspan="${colSpan}" class="px-6 py-2.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs sm:text-sm font-bold text-cyan-900">
+                                    <i class="fa-regular fa-calendar mr-1.5 text-cyan-600"></i>${escapeHTML(grp.label)}
+                                    <span class="ml-1.5 text-xs font-medium text-cyan-700/80">(${grp.items.length} transaksi)</span>
+                                </span>
+                                <div class="flex flex-wrap items-center gap-3 text-xs font-semibold">
+                                    <span class="text-emerald-700">Masuk: ${formatRupiah(grp.totalIn)}</span>
+                                    <span class="text-red-600">Keluar: ${formatRupiah(grp.totalOut)}</span>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(headerRow);
+
+                    grp.items.forEach(trx => {
+                        tbody.appendChild(buildTransactionRow(trx));
+                    });
+                });
+            } else {
+                // Jika bulan spesifik dipilih, langsung tampilkan daftar transaksi bulan tersebut
+                sortedTransactions.forEach(trx => {
+                    tbody.appendChild(buildTransactionRow(trx));
+                });
+            }
         }
 
         function updateChart(pemasukan, pengeluaran) {
